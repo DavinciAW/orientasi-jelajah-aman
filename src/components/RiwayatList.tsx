@@ -1,16 +1,16 @@
 // components/RiwayatList.tsx
-import { View, Text } from "react-native";
+import { Text, View } from "react-native";
 
 interface RiwayatListProps {
-    daftarKota: string[];
+  daftarKota: string[];
 }
 
 export default function RiwayatList({ daftarKota }: RiwayatListProps) {
-    return (
-        <View>
-            {daftarKota.map((kota) => (
-                <Text key={kota}>{kota}</Text>
-            ))}
-        </View>
-    );
+  return (
+    <View>
+      {daftarKota.map((kota) => (
+        <Text key={kota}>{kota}</Text>
+      ))}
+    </View>
+  );
 }
