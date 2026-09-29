@@ -1,12 +1,12 @@
 // src/app/(tabs)/index.tsx
-import { useState, useEffect } from "react";
-import { View, Text, ActivityIndicator, Button } from "react-native";
+import { useEffect, useState } from "react";
+import { ActivityIndicator, Button, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { HasilGeocoding } from "../../../types/geocoding";
 import SearchBox from "../../components/SearchBox";
 import WeatherCard from "../../components/WeatherCard";
 import { useDebounce } from "../../hooks/use-debounce";
 import { cariKota } from "../../services/geocodingService";
-import { HasilGeocoding } from "../../../types/geocoding";
 export default function HalamanUtama() {
   const [teksCari, setTeksCari] = useState("");
   const [hasil, setHasil] = useState<HasilGeocoding[]>([]);
@@ -39,14 +39,21 @@ export default function HalamanUtama() {
       {sedangMemuat && <ActivityIndicator />}
       {pesanError && (
         <View>
-          <Text>{pesanError}</Text>
+          <Text accessibilityLabel={pesanError}>{pesanError}</Text>
           <Button title="Coba Lagi" onPress={() => ambilData(teksTertunda)} />
         </View>
       )}
       {!sedangMemuat &&
         !pesanError &&
         teksTertunda.length > 0 &&
-        hasil.length === 0 && <Text>Kota tidak ditemukan</Text>}
+        hasil.length === 0 && (
+          <Text accessibilityLabel="Kota tidak ditemukan">
+            Kota tidak ditemukan
+          </Text>
+        )}
+      {!sedangMemuat && !pesanError && hasil.length > 0 && (
+        <Text>Ditemukan {hasil.length} kota</Text>
+      )}
       {hasil.map((kota) => (
         <WeatherCard
           key={kota.id}
