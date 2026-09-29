@@ -1,24 +1,24 @@
 // src/app/(tabs)/index.tsx
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
-  View,
-  Text,
   ActivityIndicator,
   Button,
+  Text,
   TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import SearchBox from "../../components/SearchBox";
-import WeatherCard from "../../components/WeatherCard";
-import AtribusiCuaca from "../../components/AtribusiCuaca";
-import { useDebounce } from "../../hooks/use-debounce";
-import { cariKota } from "../../services/geocodingService";
-import { ambilCuaca } from "../../services/weatherService";
-import { ambilKualitasUdara } from "../../services/airQualityService";
-import { konversiTingkatAQI } from "../../services/weatherAdapter";
-import { labelKodeCuaca } from "../../constants/weatherCodes";
 import { HasilGeocoding } from "../../../types/geocoding";
 import { DataCuacaLengkap, DataKualitasUdara } from "../../../types/weather";
+import AtribusiCuaca from "../../components/AtribusiCuaca";
+import SearchBox from "../../components/SearchBox";
+import WeatherCard from "../../components/WeatherCard";
+import { labelKodeCuaca } from "../../constants/weatherCodes";
+import { useDebounce } from "../../hooks/use-debounce";
+import { ambilKualitasUdara } from "../../services/airQualityService";
+import { cariKota } from "../../services/geocodingService";
+import { konversiTingkatAQI } from "../../services/weatherAdapter";
+import { ambilCuaca } from "../../services/weatherService";
 export default function HalamanUtama() {
   const [teksCari, setTeksCari] = useState("");
   const [hasilPencarian, setHasilPencarian] = useState<HasilGeocoding[]>([]);
@@ -80,17 +80,28 @@ export default function HalamanUtama() {
         </View>
       )}
       {cuaca && kualitasUdara && kotaTerpilih && !sedangMemuat && (
-        <WeatherCard
-          kota={kotaTerpilih.name}
-          suhu={cuaca.saatIni.suhu}
-          tingkatAQI={konversiTingkatAQI(kualitasUdara.indeksAQI)}
-          indeksAQI={kualitasUdara.indeksAQI}
-        />
+        <>
+          <WeatherCard
+            kota={kotaTerpilih.name}
+            suhu={cuaca.saatIni.suhu}
+            tingkatAQI={konversiTingkatAQI(kualitasUdara.indeksAQI)}
+            indeksAQI={kualitasUdara.indeksAQI}
+          />
+          <View style={{ flexDirection: "row", gap: 16 }}>
+            <Text>Maks {cuaca.harian.suhuMaksimal[0]}°C</Text>
+            <Text>Min {cuaca.harian.suhuMinimal[0]}°C</Text>
+          </View>
+        </>
       )}
       {cuaca && (
         <Text style={{ fontSize: 12, color: "#888" }}>
           Kondisi: {labelKodeCuaca(cuaca.saatIni.kodeCuaca)} • Angin
           {cuaca.saatIni.kecepatanAngin} km/j
+        </Text>
+      )}
+      {kualitasUdara && !sedangMemuat && (
+        <Text style={{ fontSize: 11, color: "#888" }}>
+          PM2.5: {kualitasUdara.pm25} mikrogram/m³ · PM10: {kualitasUdara.pm10} mikrogram/m³
         </Text>
       )}
       <AtribusiCuaca />
