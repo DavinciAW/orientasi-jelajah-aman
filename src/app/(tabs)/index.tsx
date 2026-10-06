@@ -1,5 +1,5 @@
 // src/app/(tabs)/index.tsx
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Button,
@@ -23,7 +23,9 @@ import {
   mintaIzinLokasi,
   ambilKoordinatSaatIni,
 } from "../../services/locationService";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
+import { KotaFavorit } from "../../../types/favorit";
+import { ambilSemuaFavorit } from "../../services/favoritStorage";
 export default function HalamanUtama() {
   const [teksCari, setTeksCari] = useState("");
   const [hasilPencarian, setHasilPencarian] = useState<HasilGeocoding[]>([]);
@@ -37,6 +39,31 @@ export default function HalamanUtama() {
   const teksTertunda = useDebounce(teksCari, 500);
   const requestIdRef = useRef(0); // pencegah race condition
   const [pesanLokasi, setPesanLokasi] = useState<string | null>(null);
+  const [favoritIds, setFavoritIds] = useState<Set<number> | null>(null);
+  const [pesanErrorFavorit, setPesanErrorFavorit] = useState<string | null>(
+    null,
+  );
+  useFocusEffect(
+    useCallback(() => {
+      let masihFokus = true;
+      setFavoritIds(null);
+      setPesanErrorFavorit(null);
+      ambilSemuaFavorit()
+        .then((favorit: KotaFavorit[]) => {
+          if (masihFokus) {
+            setFavoritIds(new Set(favorit.map((kota) => kota.id)));
+          }
+        })
+        .catch(() => {
+          if (masihFokus) {
+            setPesanErrorFavorit("Gagal memuat daftar favorit.");
+          }
+        });
+      return () => {
+        masihFokus = false;
+      };
+    }, []),
+  );
   useEffect(() => {
     if (teksTertunda.trim().length === 0) {
       setHasilPencarian([]);
@@ -93,6 +120,9 @@ export default function HalamanUtama() {
     });
   }
 
+  const kotaSudahFavorit =
+    kotaTerpilih !== null && favoritIds?.has(kotaTerpilih.id) === true;
+
   return (
     <SafeAreaView style={{ flex: 1, padding: 16, gap: 16 }}>
       <SearchBox onCari={setTeksCari} />
@@ -122,7 +152,14 @@ export default function HalamanUtama() {
             tingkatAQI={konversiTingkatAQI(kualitasUdara.indeksAQI)}
           />
           <Button
-            title="Tambahkan ke Favorit"
+            title={
+              kotaSudahFavorit ? "Sudah di Favorit" : "Tambahkan ke Favorit"
+            }
+            disabled={
+              favoritIds === null ||
+              kotaSudahFavorit ||
+              pesanErrorFavorit !== null
+            }
             onPress={() =>
               router.push({
                 pathname: "/tambah-favorit",
@@ -135,6 +172,7 @@ export default function HalamanUtama() {
               })
             }
           />
+          {pesanErrorFavorit && <Text>{pesanErrorFavorit}</Text>}
         </>
       )}
       {cuaca && (
