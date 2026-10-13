@@ -54,3 +54,6 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+## Penjelasan mengenai Cache
+Cache-segar adalah data lokal yang masih dalam masa berlaku (belum kedaluwarsa). Cache-basi adalah data tersimpan yang sudah lewat masa berlakunya tapi tetap bisa dipakai darurat. Sedangkan first-run offline adalah kondisi saat aplikasi baru pertama kali dibuka tanpa internet dan belum memiliki data sama sekali. Label status ini sangat penting agar pengguna tahu tingkat keandalan dan keakuratan informasi yang sedang mereka lihat.
